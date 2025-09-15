@@ -1,0 +1,158 @@
+{% extends 'backend/components/layout.html' %}
+
+{% block title %}AI Agent Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mt-4">AI Agent Management</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">AI Agent</li>
+    </ol>
+    
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-sync-alt mr-1"></i>
+                    Cập nhật dữ liệu sản phẩm
+                </div>
+                <div class="card-body">
+                    <p>Tạo file dữ liệu từ các sản phẩm trong database để AI Agent có thể truy xuất</p>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form action="{% url 'admin_aiagent_update_data' %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sync-alt mr-1"></i> Cập nhật danh sách sản phẩm
+                        </button>
+                    </form>
+                    
+                    <div class="mt-3">
+                        <h6>Trạng thái dữ liệu:</h6>
+                        <ul>
+                            <li>Số lượng sản phẩm: <strong>{{ product_count }}</strong></li>
+                            <li>Cập nhật lần cuối: <strong>{{ last_update|default:"Chưa cập nhật" }}</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-file-alt mr-1"></i>
+                    Dữ liệu tùy chỉnh
+                </div>
+                <div class="card-body">
+                    <p>Thêm thông tin bổ sung hoặc câu trả lời tùy chỉnh để AI Agent có thể sử dụng.</p>
+                    
+                    <form action="{% url 'admin_aiagent_update_custom_data' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="custom_data">Nội dung dữ liệu tùy chỉnh:</label>
+                            <textarea class="form-control" id="custom_data" name="custom_data" rows="10">{{ custom_data }}</textarea>
+                            <small class="form-text text-muted">
+                                Thêm thông tin về cửa hàng, chính sách, hoặc các câu trả lời mẫu.
+                            </small>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save mr-1"></i> Lưu dữ liệu tùy chỉnh
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-robot mr-1"></i>
+                    Test AI Agent
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="user_query">Nhập câu hỏi:</label>
+                                <input type="text" class="form-control" id="user_query" placeholder="Ví dụ: So sánh Amply Denon PMA-900HNE và Amply Marantz PM6007">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="button" id="btn_send_query" class="btn btn-primary form-control">
+                                    <i class="fas fa-paper-plane mr-1"></i> Gửi câu hỏi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4" id="response_container" style="display: none;">
+                        <div class="card bg-light">
+                            <div class="card-header">
+                                <i class="fas fa-reply mr-1"></i> Kết quả
+                            </div>
+                            <div class="card-body">
+                                <pre id="response_text" style="white-space: pre-wrap;"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const btnSendQuery = document.getElementById("btn_send_query");
+        const userQuery = document.getElementById("user_query");
+        const responseContainer = document.getElementById("response_container");
+        const responseText = document.getElementById("response_text");
+        
+        btnSendQuery.addEventListener("click", function() {
+            if (!userQuery.value.trim()) {
+                alert("Vui lòng nhập câu hỏi!");
+                return;
+            }
+            
+            // Hiển thị trạng thái đang tải
+            responseContainer.style.display = "block";
+            responseText.textContent = "Đang xử lý...";
+            btnSendQuery.disabled = true;
+            
+            // Gửi request đến API
+            fetch("{% url 'function_calling' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    query: userQuery.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseText.textContent = data.response;
+                btnSendQuery.disabled = false;
+            })
+            .catch(error => {
+                responseText.textContent = "Đã xảy ra lỗi: " + error.message;
+                btnSendQuery.disabled = false;
+            });
+        });
+    });
+</script>
+{% endblock %} 

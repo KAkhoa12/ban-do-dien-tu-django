@@ -1,0 +1,131 @@
+{% load static %}
+{% load custom_filters %}
+<header>
+    <!-- TOP HEADER -->
+    <div id="top-header">
+        <div class="container">
+            <ul class="header-links pull-left">
+                <li><a href="#"><i class="fa fa-phone"></i> +021-95-51-84</a></li>
+                <li><a href="#"><i class="fa fa-envelope-o"></i> email@email.com</a></li>
+                <li><a href="#"><i class="fa fa-map-marker"></i> 1734 Stonecoal Road</a></li>
+            </ul>
+            <ul class="header-links pull-right">
+                <li>
+                    {% if request.session.user_id %}
+                    <div class="dropdown">
+                        <i class="fa fa-user-o"></i> 
+                        <di class="btn btn-secondary dropdown-toggle " style="color: white;" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ request.session.name }}
+                        </di>
+                        <div class="dropdown-menu " aria-labelledby="dropdownMenuButton" style="padding: 5px 10px;">
+                            <div style="display: flex;flex-direction: column;">
+                                <a class="dropdown-item" style="color: red;" href="{% url 'profile' request.session.user_id %}">Thông tin</a>
+                                <a class="dropdown-item" style="color: red;" href="{% url 'order_history' %}">Lịch sử mua hàng</a>
+                                <a class="dropdown-item" style="color: red;" href="{% url 'logout' %}">Đăng xuất</a>
+                                {% if request.session.role == 'admin' %}
+                                <a class="dropdown-item" style="color: red;" href="{% url 'dashboard' %}">Trang quản trị</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                        <a href="{% url 'login' %}">
+                            <i class="fa fa-user-o"></i> 
+                            Tài khoản</a>
+                    {% endif %}
+
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- /TOP HEADER -->
+
+    <!-- MAIN HEADER -->
+    <div id="header">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="/" class="logo">
+                            <img src="{%static '/img/logo.png'%}" alt=""
+                                style="height: 70px; width: 100px; object-fit: cover;">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+
+                {% include 'frontend/components/search.html' %}
+
+                <!-- ACCOUNT -->
+                <div class="col-md-3 clearfix">
+                    <div class="header-ctn">
+
+                        <!-- Cart -->
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                <i class="fa fa-shopping-cart"></i>
+                                <span>Giỏ hàng</span>
+                                {% if request.session.user_id %}
+                                <div class="qty">{{ request.session.quantity }}</div>
+                                {% else %}
+                                <div class="qty">0</div>
+                                {% endif %}
+                            </a>
+                            <div class="cart-dropdown">
+                                {% if request.session.quantity != 0 and request.session.user_id %}
+                                    <div class="cart-list">
+                                        {% for item in request.session.cart_details %}
+                                        <div class="product-widget">
+                                            <div class="product-img">
+                                                <img src="{% static item.product_image %}" alt="">
+                                            </div>
+                                            <div class="product-body">
+                                                <h3 class="product-name"><a href="{% url 'product_detail' item.product_id %}">{{ item.product_name }}</a></h3>
+                                                <h4 class="product-price"><span class="qty">{{ item.quantity }}x</span>{{ item.product_price|currency_format }}</h4>
+                                            </div>
+                                            <a href="{% url 'remove_from_cart' item.product_id %}" class="delete"><i class="fa fa-close"></i></a>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="cart-summary">
+                                        <small>3 Item(s) selected</small>
+                                        <h5>SUBTOTAL: $2940.00</h5>
+                                    </div>
+                                    <div class="cart-btns" style="width: 100%;">
+                                        <a href="{% url 'cart' %}" style="width: 100%;">View Cart</a>
+                                    </div>
+                                {% else %}
+                                <div>
+                                    <h5>Không có sản phẩm nào được thêm vào</h5>
+                                </div>
+                                    <div class="cart-summary">
+                                        <small>0 Item(s) selected</small>
+                                        <h5>SUBTOTAL: 0 nvđ</h5>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <!-- /Cart -->
+
+                        <!-- Menu Toogle -->
+                        <div class="menu-toggle">
+                            <a href="#">
+                                <i class="fa fa-bars"></i>
+                                <span>Menu</span>
+                            </a>
+                        </div>
+                        <!-- /Menu Toogle -->
+                    </div>
+                </div>
+                <!-- /ACCOUNT -->
+            </div>
+            <!-- row -->
+        </div>
+        <!-- container -->
+    </div>
+    <!-- /MAIN HEADER -->
+</header>

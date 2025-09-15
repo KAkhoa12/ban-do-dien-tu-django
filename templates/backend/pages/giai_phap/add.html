@@ -1,0 +1,100 @@
+{% extends 'backend/components/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Thêm giải pháp âm thanh
+{% endblock %}
+
+{% block extra_css %}
+<!-- Include Quill stylesheet -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Thêm giải pháp âm thanh</h1>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin giải pháp</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="solutionForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="title">Tiêu đề</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Mô tả ngắn</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">Nội dung</label>
+                    <div id="editor" style="height: 300px;"></div>
+                    <input type="hidden" name="content" id="content">
+                </div>
+                
+                <div class="form-group">
+                    <label for="youtube_url">URL YouTube</label>
+                    <input type="url" class="form-control" id="youtube_url" name="youtube_url" placeholder="https://www.youtube.com/watch?v=...">
+                    <small class="form-text text-muted">Nhập URL video YouTube (không bắt buộc)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="image">Hình ảnh chính</label>
+                    <input type="file" class="form-control-file" id="image" name="image" accept="image/*" required>
+                    <small class="form-text text-muted">Vui lòng chọn một hình ảnh đại diện cho giải pháp</small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Lưu</button>
+                <a href="{% url 'admin_giai_phap' %}" class="btn btn-secondary">Hủy</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Quill library -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+<script>
+    // Khởi tạo Quill editor
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'font': [] }],
+                [{ 'align': [] }],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'script': 'sub'}, { 'script': 'super' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                ['link', 'video'],
+                ['clean']
+            ]
+        }
+    });
+    
+    // Xử lý sự kiện khi form được submit
+    document.getElementById('solutionForm').addEventListener('submit', function(e) {
+        // Lấy nội dung từ editor và gán vào input hidden
+        var content = quill.root.innerHTML;
+        document.getElementById('content').value = content;
+        
+        // Kiểm tra nếu content trống
+        if (!content || content === '<p><br></p>') {
+            e.preventDefault();
+            alert('Vui lòng nhập nội dung cho giải pháp');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

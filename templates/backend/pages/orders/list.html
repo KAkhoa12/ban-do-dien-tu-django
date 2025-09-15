@@ -1,0 +1,79 @@
+{% extends 'backend/components/layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Quản lý đơn hàng</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Đơn hàng</li>
+    </ol>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-shopping-cart me-1"></i>
+            Danh sách đơn hàng
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Khách hàng</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.user.name }}</td>
+                        <td>{{ order.total_price|floatformat:0 }} VNĐ</td>
+                        <td>
+                            <span class="{% if order.status == 'pending' %}text-primary{% elif order.status == 'processing' %}text-success{% elif order.status == 'shipping' %}text-warning{% elif order.status == 'completed' %}text-success{% elif order.status == 'cancelled' %}text-danger{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <a href="{% url 'admin_order_detail' order.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" 
+                                    data-bs-target="#deleteModal{{ order.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    
+                    <!-- Delete Modal -->
+                    <div class="modal fade" id="deleteModal{{ order.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Xác nhận xóa</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Bạn có chắc chắn muốn xóa đơn hàng #{{ order.id }} không?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    <form action="{% url 'admin_order_delete' order.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Xóa</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

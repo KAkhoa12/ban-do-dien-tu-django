@@ -1,0 +1,135 @@
+{% extends 'backend/components/layout.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Chi tiết đơn hàng #{{ order.id }}</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_orders' %}">Đơn hàng</a></li>
+        <li class="breadcrumb-item active">Chi tiết</li>
+    </ol>
+
+    {% if messages %}
+    <div class="alert alert-success">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-user me-1"></i>
+                    Thông tin khách hàng
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <th>Tên khách hàng:</th>
+                            <td>{{ order.user.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>{{ order.user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Số điện thoại:</th>
+                            <td>{{ order.user.phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>Địa chỉ:</th>
+                            <td>{{ order.user.address }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Thông tin đơn hàng
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <table class="table">
+                            <tr>
+                                <th>Mã đơn hàng:</th>
+                                <td>#{{ order.id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Ngày đặt:</th>
+                                <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Tổng tiền:</th>
+                                <td>{{ order.total_price|floatformat:0 }} VNĐ</td>
+                            </tr>
+                            <tr>
+                                <th>Trạng thái:</th>
+                                <td>
+                                    <select name="status" class="form-select">
+                                        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Chờ xử lý</option>
+                                        <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Đang xử lý</option>
+                                        <option value="shipping" {% if order.status == 'shipping' %}selected{% endif %}>Đang giao hàng</option>
+                                        <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Hoàn thành</option>
+                                        <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Đã hủy</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Cập nhật trạng thái</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-list me-1"></i>
+            Chi tiết sản phẩm
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Hình ảnh</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_details %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>
+                            <img src="{% static item.product.image_url %}" alt="{{ item.product.name }}" 
+                                style="width: 100px; height: 60px; object-fit: cover;">
+                        </td>
+                        <td>{{ item.price|currency_format }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.price|multiply:item.quantity|currency_format }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-end">Tổng cộng:</th>
+                        <th>{{ order.total_price|currency_format }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %} 

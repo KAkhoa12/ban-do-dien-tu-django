@@ -1,0 +1,165 @@
+{% extends 'backend/components/layout.html' %}
+
+{% block title %}Chỉnh sửa công trình toàn diện{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Chỉnh sửa công trình toàn diện</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="editForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="title">Tiêu đề <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ cong_trinh.title }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Mô tả ngắn <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required>{{ cong_trinh.description }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="content">Nội dung <span class="text-danger">*</span></label>
+                            <div id="editor" style="height: 300px;"></div>
+                            <input type="hidden" name="content" id="content">
+                        </div>
+                        <div class="form-group">
+                            <label for="image">Hình ảnh <span class="text-danger">*</span></label>
+                            {% if cong_trinh.image_url %}
+                            <div class="mb-2">
+                                <img src="{{ cong_trinh.image_url }}" alt="Hình ảnh hiện tại" style="max-width: 200px;">
+                            </div>
+                            {% endif %}
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img src="" alt="Preview" style="max-width: 200px;">
+                            </div>
+                            <small class="form-text text-muted">Chọn hình ảnh mới nếu muốn thay đổi (không bắt buộc)</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Trạng thái <span class="text-danger">*</span></label>
+                            <select class="form-control" id="status" name="status" required>
+                                <option value="active" {% if cong_trinh.status == 'active' %}selected{% endif %}>Hiển thị</option>
+                                <option value="inactive" {% if cong_trinh.status == 'inactive' %}selected{% endif %}>Ẩn</option>
+                            </select>
+                        </div>
+                        <div id="errorMessages" class="alert alert-danger" style="display: none;"></div>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        <a href="{% url 'admin_cong_trinh' %}" class="btn btn-secondary">Hủy</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Quill stylesheet -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<!-- Include Quill library -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+<script>
+    // Khởi tạo Quill editor
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'align': [] }],
+                ['link', 'image'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Đặt nội dung hiện tại vào editor
+    quill.root.innerHTML = `{{ cong_trinh.content|safe }}`;
+
+    // Xử lý upload ảnh trong editor
+    var toolbar = quill.getModule('toolbar');
+    toolbar.addHandler('image', function() {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = async function() {
+            const file = input.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('url_cha', 'cong_trinh');
+
+                try {
+                    const response = await fetch('/upload_file/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        const range = quill.getSelection(true);
+                        quill.insertEmbed(range.index, 'image', data.url);
+                    } else {
+                        alert('Upload ảnh thất bại: ' + data.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi upload ảnh');
+                }
+            }
+        };
+    });
+
+    // Xử lý preview ảnh
+    document.getElementById('image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.style.display = 'block';
+                preview.querySelector('img').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Xử lý submit form
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Lấy nội dung từ editor
+        const content = quill.root.innerHTML;
+        document.getElementById('content').value = content;
+        
+        // Kiểm tra các trường bắt buộc
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        
+        const errorMessages = [];
+        if (!title) errorMessages.push('Vui lòng nhập tiêu đề');
+        if (!description) errorMessages.push('Vui lòng nhập mô tả ngắn');
+        if (!content || content === '<p><br></p>') errorMessages.push('Vui lòng nhập nội dung');
+        
+        const errorDiv = document.getElementById('errorMessages');
+        if (errorMessages.length > 0) {
+            errorDiv.innerHTML = errorMessages.join('<br>');
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        errorDiv.style.display = 'none';
+        this.submit();
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,113 @@
+{% extends 'frontend/components/layout.html' %}
+{% load static %}
+{% load cart_tags %}
+{% load custom_filters %}
+{% block title %}
+{{ title }}
+{% endblock %}
+
+
+{% block content %}
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <div class="col-md-5">
+                <!-- Billing Details -->
+                <form method="POST" action="{% url 'profile' user.id %}" class="billing-details">
+                    {% csrf_token %}
+                    <div class="section-title">
+                        <h3 class="title">Thông tin cá nhân</h3>
+                    </div>
+                    <div class="form-group">
+                        <input class="input" type="text" name="name" placeholder="Tên" value="{{user.name}}">
+                    </div>
+                    <div class="form-group">
+                        <input class="input" type="email" name="email" placeholder="Email" value="{{user.email}}">
+                    </div>
+                    <div class="form-group">
+                        <input class="input" type="text" name="phone" placeholder="số điện thoại"
+                            value="{{user.phone}}">
+                    </div>
+                    <div class="form-group">
+                        <input class="input" type="text" name="address" placeholder="Địa chỉ"
+                            value="{{user.address}}">
+                    </div>
+                    <button class="primary-btn order-submit" type="submit">Cập nhập thông tin</button>
+                </form>
+                {% if success %}
+                {% for message in success %}
+                <p class="text-center" style="color: green;">{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+                {% if errors %}
+                {% for message in errors %}
+                <p class="text-center" style="color: red;">{{ message }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Order Details -->
+            <div class="col-md-7 order-details">
+                <div class="section-title text-center">
+                    <h3 class="title">Sản phẩm trong giỏ hàng</h3>
+                </div>
+                <div class="order-summary">
+                    <div class="order-col">
+                        <div><strong>Sản phẩm</strong></div>
+                        <div><strong>Tổng cộng</strong></div>
+                    </div>
+                    <div class="order-products">
+                        {% for cart_detail in cart_details %}
+                        <div class="order-col" >
+                            <div style="display: flex; align-items: center; width: 300px;">
+                                <span> {{ cart_detail.product_name }} </span>
+                            </div>
+                            <div class="input-number" style="max-width: 110px; margin-right: 10px;">
+                                <a href="{% url 'decrease_cart_item' cart_detail.product_id %}" style="font-size: 25px; font-weight: bold;" class="">-</a>
+                                <input type="number" value="{{ cart_detail.quantity }}" readonly style="width: 30px; text-align: center;line-height: 30px;padding: 0;">
+                                <a href="{% url 'increase_cart_item' cart_detail.product_id %}" style="font-size: 25px; font-weight: bold;" class="">+</a>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <span style="margin-right: 10px;">{{ cart_detail.product_price|multiply:cart_detail.quantity|currency_format }}</span>
+                                <a href="{% url 'remove_from_cart' cart_detail.product_id %}" class="delete-btn" style="color: #e60000; font-size: 18px;"><i class="fa fa-times"></i></a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="order-col">
+                        <div>Vận chuyển</div>
+                        <div><strong>Miễn Phí</strong></div>
+                    </div>
+                    <div class="order-col">
+                        <div><strong>Thành tiền</strong></div>
+                        <div><strong class="order-total">{% calculate_total cart_details as total %}{{ total|currency_format }}</strong></div>
+                    </div>
+                    <form method="post" action="{% url 'create_payment' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="number" id="amount" name="amount" min="1000" step="1000"
+                                value="{% calculate_total cart_details %}" required hidden>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="order_info" name="order_info" value="Thanh toán đơn hàng" required hidden>
+                        </div>
+                        <button class="primary-btn order-submit" type="submit">Thanh toán qua MoMo</button>
+                    </form>
+                    {% if messages %}
+                    {% for message in messages %}
+                    <p class="text-center" style="color: red;">{{ message }}</p>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+{% endblock %}

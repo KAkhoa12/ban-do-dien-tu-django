@@ -1,0 +1,61 @@
+<div id="layoutSidenav_nav">
+    <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+        <div class="sb-sidenav-menu">
+            <div class="nav">
+                <div class="sb-sidenav-menu-heading">Core</div>
+                <a class="nav-link" href="{% url 'dashboard' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    Trang chủ
+                </a>
+                <div class="sb-sidenav-menu-heading">Quản lý</div>
+                <a class="nav-link" href="{% url 'admin_products' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
+                    Quản lý sản phẩm
+                </a>
+                <a class="nav-link" href="{% url 'admin_brands' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-tags"></i></div>
+                    Quản lý nhãn hàng
+                </a>
+                <a class="nav-link" href="{% url 'admin_categories' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
+                    Quản lý danh mục
+                </a>
+                <a class="nav-link" href="{% url 'admin_users' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                    Quản lý người dùng
+                </a>
+                <a class="nav-link" href="{% url 'admin_cong_trinh' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-building"></i></div>
+                    Quản lý công trình toàn diện
+                </a>
+                <a class="nav-link" href="{% url 'admin_giai_phap' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-music"></i></div>
+                    Quản lý giải pháp âm thanh
+                </a>
+                <a class="nav-link" href="{% url 'admin_orders' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
+                    Quản lý đơn hàng
+                </a>
+                <a class="nav-link" href="{% url 'admin_aiagent' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-robot"></i></div>
+                    AI Agent
+                </a>
+                <div class="sb-sidenav-menu-heading">Tài khoản</div>
+                <a class="nav-link" href="{% url 'dashboard_logout' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-sign-out-alt"></i></div>
+                    Đăng xuất
+                </a>
+                <a class="nav-link" href="{% url 'home' %}">
+                    <div class="sb-nav-link-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    Trang giao diện website
+                </a>
+            </div>
+        </div>
+        <div class="sb-sidenav-footer">
+            <div class="small">Đăng nhập với:</div>
+            {{ request.session.name }}
+        </div>
+    </nav>
+</div>

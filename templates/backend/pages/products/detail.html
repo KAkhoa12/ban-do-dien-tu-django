@@ -1,0 +1,135 @@
+{% extends 'backend/components/layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Chi tiết sản phẩm</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_products' %}">Sản phẩm</a></li>
+        <li class="breadcrumb-item active">Chi tiết</li>
+    </ol>
+
+    {% if messages %}
+    <div class="alert alert-success">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-edit me-1"></i>
+            Thông tin sản phẩm
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Tên sản phẩm</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Giá</label>
+                            <input type="number" class="form-control" id="price" name="price" value="{{ product.price }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="old_price" class="form-label">Giá cũ</label>
+                            <input type="number" class="form-control" id="old_price" name="old_price" value="{{ product.old_price }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="stock" class="form-label">Số lượng trong kho</label>
+                            <input type="number" class="form-control" id="stock" name="stock" value="{{ product.stock }}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Danh mục</label>
+                            <select class="form-select" id="category" name="category" required>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if category.id == product.category_id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="brand" class="form-label">Thương hiệu</label>
+                            <select class="form-select" id="brand" name="brand" required>
+                                {% for brand in brands %}
+                                <option value="{{ brand.id }}" {% if brand.id == product.brand_id %}selected{% endif %}>
+                                    {{ brand.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Hình ảnh</label>
+                            <input type="file" class="form-control" id="image" name="image">
+                            {% if product.image_url %}
+                            <div class="mt-2">
+                                <img src="{% static product.image_url %}" alt="{{ product.name }}" 
+                                    style="max-width: 200px; max-height: 200px;">
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả</label>
+                    <textarea class="form-control" id="description" name="description" rows="5">{{ product.description }}</textarea>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        Xóa sản phẩm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa sản phẩm "{{ product.name }}" không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form action="{% url 'admin_product_delete' product.id %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.tiny.cloud/1/hk9awsfqt0p1878ts2vbepa9qm1ut32upc7c4w1w3epxxwc4/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#description',
+        height: 300,
+        plugins: [
+            'advlist autolink lists link image charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media table paste code help wordcount'
+        ],
+        toolbar: 'undo redo | formatselect | bold italic backcolor | \
+                alignleft aligncenter alignright alignjustify | \
+                bullist numlist outdent indent | removeformat | help'
+    });
+</script>
+{% endblock %}
+{% endblock %} 

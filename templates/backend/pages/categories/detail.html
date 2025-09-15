@@ -1,0 +1,140 @@
+{% extends 'backend/components/layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Chi tiết danh mục</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'admin_categories' %}">Danh mục</a></li>
+        <li class="breadcrumb-item active">Chi tiết</li>
+    </ol>
+
+    {% if messages %}
+    <div class="alert alert-success">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-edit me-1"></i>
+            Thông tin danh mục
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Tên danh mục</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ category.name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="description" name="description" rows="4">{{ category.description }}</textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Thống kê</label>
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="mb-2">
+                                        <i class="fas fa-box me-1"></i>
+                                        Số sản phẩm: {{ category.product_set.count }}
+                                    </p>
+                                    <p class="mb-2">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Ngày tạo: {{ category.created_at|date:"d/m/Y H:i" }}
+                                    </p>
+                                    <p class="mb-0">
+                                        <i class="fas fa-clock me-1"></i>
+                                        Cập nhật lần cuối: {{ category.updated_at|date:"d/m/Y H:i" }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        Xóa danh mục
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if category.product_set.exists %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-box me-1"></i>
+            Sản phẩm trong danh mục
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Hình ảnh</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Giá</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in category.product_set.all %}
+                    <tr>
+                        <td>{{ product.id }}</td>
+                        <td>
+                            <img src="{% static product.image_url %}" alt="{{ product.name }}" 
+                                style="width: 50px; height: 50px; object-fit: contain;">
+                        </td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.price }}</td>
+                        <td>
+                            <a href="{% url 'admin_product_detail' product.id %}" class="btn btn-info btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa danh mục "{{ category.name }}" không?
+                {% if category.product_set.exists %}
+                <div class="alert alert-warning mt-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Cảnh báo: Danh mục này đang có {{ category.product_set.count }} sản phẩm.
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form action="{% url 'admin_category_delete' category.id %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
