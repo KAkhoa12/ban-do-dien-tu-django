@@ -899,7 +899,9 @@ textarea.input {
   border-color: #D10024;
   color: #FFF;
 }
-
+.product-slick .product-body{
+  margin-left: 0;
+}
 .product .product-body {
   position: relative;
   padding: 15px;
@@ -1139,19 +1141,7 @@ textarea.input {
   margin-right: 10px;
 }
 
-.product-widget .delete {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 14px;
-  width: 14px;
-  text-align: center;
-  font-size: 10px;
-  padding: 0;
-  background: #1e1f29;
-  border: none;
-  color: #FFF;
-}
+
 
 /*----------------------------*\
 	Products slick
@@ -2195,4 +2185,14 @@ textarea.input {
     float: none;
     margin-top: 10px;
   }
+}
+
+#brand-slick .product-img{
+  height: 100px;
+  object-fit: contain;
+  object-position: center;
+} 
+
+#brand-slick .product-img img{
+  width: 100%;
 }

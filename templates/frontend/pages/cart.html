@@ -95,7 +95,14 @@
                         <div class="form-group">
                             <input type="text" id="order_info" name="order_info" value="Thanh toán đơn hàng" required hidden>
                         </div>
-                        <button class="primary-btn order-submit" type="submit">Thanh toán qua MoMo</button>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="payment_method"><strong>Phương thức thanh toán</strong></label>
+                            <select class="form-control" id="payment_method" name="payment_method" style="max-width: 250px; display:inline-block; margin-left:15px;">
+                                <option value="cod" selected>Thanh toán khi nhận hàng</option>
+                                <option value="momo">Thanh toán qua MoMo</option>
+                            </select>
+                        </div>
+                        <button class="primary-btn order-submit" type="submit" style="width: 100%; margin-top: 8px;">Thanh toán</button>
                     </form>
                     {% if messages %}
                     {% for message in messages %}

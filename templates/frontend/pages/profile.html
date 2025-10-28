@@ -28,10 +28,10 @@
             <!-- User Profile -->
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-body text-center">
+                    <div class="card-body text-center" style="padding:10px">
                         <h4>{{ user.name }}</h4>
                         <p class="text-muted">{{ user.email }}</p>
-                        <p class="text-muted"><i class="fa fa-phone mr-2"></i> {{ user.phone|default:"Chưa cập nhật" }}</p>
+                        <p class="text-muted"><i class="fa fa-phone mr-2"></i> {{ user.phone|default:"Chưa cập nhập" }}</p>
                         <hr>
                         <div class="text-left">
                             <p><strong>Tài khoản:</strong> {{ user.username }}</p>
@@ -42,7 +42,7 @@
                 </div>
                 <div class="card mt-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Liên kết nhanh</h5>
+                        <h5 class="mb-0" style="color: white;">Liên kết nhanh</h5>
                     </div>
                     <div class="card-body">
                         <ul class="list-group">
@@ -64,9 +64,9 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">Cập nhật thông tin cá nhân</h5>
+                        <h5 class="mb-0" style="color: white;">Cập nhập thông tin cá nhân</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" style="padding:10px">
                         {% if success %}
                             <div class="alert alert-success">
                                 {% for message in success %}

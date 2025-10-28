@@ -379,7 +379,7 @@
 									{% endfor %}
 								</div>
 							</div>
-							<div class="product-body">
+							<div class="product-body" style="margin: 0;">
 								<p class="product-category">{{product_r.category}}</p>
 								<h3 class="product-name"><a href="{% url 'product_detail' product_r.id %}">{{product_r.name}}</a></h3>
 								<h4 class="product-price">
@@ -388,12 +388,12 @@
 								</h4>
 								<p class="product-category">Đã bán: {{product_r.number_of_sell}}</p>
 							</div>
-							<div class="add-to-cart">
+							<a href="{% url 'add_to_cart' product_r.id %}" class="add-to-cart">
 								<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng</button>
-							</div>
+							</a>
 						</div>
 					</div>
-				{%endfor%}
+					{%endfor%}
 					
 
 				</div>

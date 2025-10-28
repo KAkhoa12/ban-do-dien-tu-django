@@ -22,7 +22,42 @@
             </div>
         </div>
         <div class="card-body">
-            <table id="datatablesSimple" class="table table-bordered">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <form method="get" class="d-flex align-items-center gap-2" id="filterForm">
+                    <select class="form-select" name="brand" style="width: auto;">
+                        <option value="">Tất cả thương hiệu</option>
+                        {% for b in brands %}
+                            <option value="{{ b.id }}" {% if brand_query|add:"" == b.id|add:"" %}selected{% endif %}>{{ b.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-select" name="category" style="width: auto;">
+                        <option value="">Tất cả danh mục</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if category_query|add:"" == cat.id|add:"" %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-secondary" type="submit">Lọc</button>
+                    <input type="hidden" name="items" value="{{ items }}">
+                </form>
+                <div>
+                    <span>Hiển thị:</span>
+                    <select class="form-select d-inline-block" style="width: auto; display: inline-block;" onchange="changeItemsPerPage(this.value)">
+                        <option value="10" {% if items == 10 %}selected{% endif %}>10</option>
+                        <option value="20" {% if items == 20 %}selected{% endif %}>20</option>
+                        <option value="50" {% if items == 50 %}selected{% endif %}>50</option>
+                        <option value="100" {% if items == 100 %}selected{% endif %}>100</option>
+                    </select>
+                    <span class="ms-2 text-muted">mỗi trang</span>
+                </div>
+                <div class="text-muted">
+                    {% if page_obj.paginator.count > 0 %}
+                        Hiển thị {{ page_obj.start_index }}–{{ page_obj.end_index }} trên tổng {{ page_obj.paginator.count }} sản phẩm
+                    {% else %}
+                        Không có sản phẩm nào
+                    {% endif %}
+                </div>
+            </div>
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -31,7 +66,7 @@
                         <th>Giá</th>
                         <th>Danh mục</th>
                         <th>Thương hiệu</th>
-                        <th>Thao tác</th>
+                        <th>Thao tác </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,6 +116,92 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <nav aria-label="Pagination" class="mt-3">
+                <ul class="pagination justify-content-center mb-0 flex-wrap" style="flex-wrap: wrap; gap:2px; max-width:100vw;overflow-x:auto;">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="{% url 'admin_products' %}?page=1{% if filters_query %}&{{ filters_query }}{% endif %}" aria-label="First">««</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="{% url 'admin_products' %}?page={{ page_obj.previous_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}" aria-label="Previous">«</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">««</span></li>
+                        <li class="page-item disabled"><span class="page-link">«</span></li>
+                    {% endif %}
+
+                    {# Giới hạn số trang được hiển thị #}
+                    {% if paginator.num_pages > 11 %}
+                        {# Hiện trang 1 và dấu ... khi đang ở xa đầu #}
+                        {% if page_obj.number > 5 %}
+                            <li class="page-item">
+                                 <a class="page-link" href="{% url 'admin_products' %}?page=1{% if filters_query %}&{{ filters_query }}{% endif %}">1</a>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+
+                        {# Hiện các trang quanh current page (tối đa 5 trang): current-2 -> current+2 #}
+                        {% for num in paginator.page_range %}
+                            {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                                {% if num == page_obj.number %}
+                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                {% else %}
+                                     <li class="page-item"><a class="page-link" href="{% url 'admin_products' %}?page={{ num }}{% if filters_query %}&{{ filters_query }}{% endif %}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {# Hiện dấu ... và trang cuối nếu đang ở xa cuối #}
+                        {% if page_obj.number < paginator.num_pages|add:"-4" %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            <li class="page-item">
+                                 <a class="page-link" href="{% url 'admin_products' %}?page={{ paginator.num_pages }}{% if filters_query %}&{{ filters_query }}{% endif %}">{{ paginator.num_pages }}</a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        {% for num in paginator.page_range %}
+                            {% if num == page_obj.number %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% else %}
+                                 <li class="page-item"><a class="page-link" href="{% url 'admin_products' %}?page={{ num }}{% if filters_query %}&{{ filters_query }}{% endif %}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{% url 'admin_products' %}?page={{ page_obj.next_page_number }}{% if filters_query %}&{{ filters_query }}{% endif %}" aria-label="Next">»</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="{% url 'admin_products' %}?page={{ paginator.num_pages }}{% if filters_query %}&{{ filters_query }}{% endif %}" aria-label="Last">»»</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">»</span></li>
+                        <li class="page-item disabled"><span class="page-link">»»</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <style>
+                .pagination {
+                    flex-wrap: wrap !important;
+                    gap: 2px;
+                    overflow-x: auto;
+                    padding-bottom: 4px;
+                    max-width: 100vw;
+                }
+            </style>
+            <script>
+                function changeItemsPerPage(value) {
+                    const params = new URLSearchParams(window.location.search);
+                    params.set('items', value);
+                    params.set('page', '1');
+                    window.location = "{% url 'admin_products' %}?"+params.toString();
+                }
+            </script>
         </div>
     </div>
 </div>

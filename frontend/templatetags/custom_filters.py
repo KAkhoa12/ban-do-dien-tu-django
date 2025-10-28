@@ -14,8 +14,15 @@ def split_and_upper(value, delimiter=","):
 
 @register.filter
 def currency_format(value):
-    value = float(value)  # Chuyển giá trị thành số nguyên
-    return f"{value:,.0f} VNĐ".replace(",", ".")  
+    # print(f"giá tiền: {value} và type: {type(value)}")
+    try:
+        if value is None or value == '' or value == 'None':
+            return "0 VNĐ"
+        if isinstance(value, str):
+            value = float(value.replace(",", "").replace(".", ""))
+        return f"{float(value):,.0f} VNĐ".replace(",", ".")
+    except (ValueError, TypeError):
+        return "0 VNĐ"
 
 @register.filter(name='multiply')
 def multiply(value, arg):
