@@ -136,7 +136,7 @@ def create_payment(request):
                 missing_fields.append(field)
         
         if missing_fields:
-            messages.error(request, f"Thiếu các giá trị trong các trường: {', '.join(missing_fields)}")
+            messages.error(request, f"Must fill in the following fields: {', '.join(missing_fields)}")
             return render(request, 'frontend/pages/cart.html', {
                 'title': 'Giỏ hàng - Thanh toán', 
                 'categories': categories, 
