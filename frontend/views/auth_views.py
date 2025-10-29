@@ -2,6 +2,7 @@ from frontend.decorator import admin_required
 from frontend.utils.db_helper import * 
 from django.shortcuts import redirect, render
 from django.contrib.auth.hashers import make_password,check_password
+from frontend.utils.random_name import generate_random_name
 def login_page(request):
     categories = get_all_categories()
     messages = []
@@ -40,6 +41,7 @@ def login_page(request):
             request.session['cart_id'] = cart.id
             request.session['quantity'] = len(cart_details)
             request.session['cart_details'] = cart_details_serializable
+            request.session['cart_total'] = sum(detail['total_price'] for detail in cart_details_serializable)
             return redirect('home')
         else:
             messages.append("Tài khoản không hợp lệ")
@@ -68,7 +70,7 @@ def register_page(request):
                 username=username, 
                 email=email, 
                 password=make_password(password), 
-                name =random_name.generate_random_name(),
+                name =generate_random_name(),
                 role='user'  # Set default role as user
             )
             user.save()

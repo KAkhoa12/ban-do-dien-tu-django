@@ -1,6 +1,11 @@
 from frontend.decorator import admin_required
 from frontend.utils.db_helper import * 
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from frontend.models import CongTrinhToanDien
+from frontend.utils.upload_file import upload_file
+import os
+from django.conf import settings
 # Công trình toàn diện
 @admin_required
 def admin_cong_trinh(request):
@@ -30,7 +35,7 @@ def admin_cong_trinh_detail(request, id):
             
             # Xử lý upload ảnh mới nếu có
             if 'image' in request.FILES and request.FILES['image']:
-                cong_trinh.image_url = upload_file.upload_file(request.FILES['image'], 'cong_trinh')
+                cong_trinh.image_url = upload_file(request.FILES['image'], 'cong_trinh')
             cong_trinh.status = status
             # Lưu thay đổi
             cong_trinh.save()
@@ -66,7 +71,7 @@ def admin_cong_trinh_add(request):
             
             # Xử lý upload ảnh
             if 'image' in request.FILES:
-                cong_trinh.image_url = upload_file.upload_file(request.FILES['image'], 'cong_trinh')
+                cong_trinh.image_url = upload_file(request.FILES['image'], 'cong_trinh')
             else:
                 messages.error(request, 'Vui lòng chọn hình ảnh cho công trình')
                 return render(request, 'backend/pages/cong_trinh/add.html')

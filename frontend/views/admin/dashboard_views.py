@@ -1,6 +1,7 @@
 from frontend.decorator import admin_required
 from frontend.utils.db_helper import * 
 from django.shortcuts import render
+from frontend.utils.types import status_order_choices
 # Back - end 
 @admin_required
 def dashboard_page(request):
@@ -16,9 +17,14 @@ def dashboard_page(request):
     
     # Thống kê đơn hàng
     total_orders = Order.objects.count()
-    pending_orders = Order.objects.filter(status='pending').count()
-    completed_orders = Order.objects.filter(status='completed').count()
-    cancelled_orders = Order.objects.filter(status='cancelled').count()
+    # Đếm theo tất cả trạng thái dựa trên types.py
+    status_counts = {}
+    for status_key in status_order_choices.keys():
+        status_counts[status_key] = Order.objects.filter(status=status_key).count()
+    # Giữ lại các biến cũ (nếu template/logic khác còn dùng)
+    pending_orders = status_counts.get('pending', 0)
+    completed_orders = status_counts.get('completed', 0)
+    cancelled_orders = status_counts.get('cancelled', 0)
     
     # Tính tổng doanh thu
     completed_orders_list = Order.objects.filter(status='completed')
@@ -66,9 +72,9 @@ def dashboard_page(request):
         orders_count.append(data['count'])
         orders_revenue.append(float(data['revenue']))
     
-    # Phân tích tỷ lệ trạng thái đơn hàng
-    order_status_labels = ['Đang xử lý', 'Hoàn thành', 'Đã hủy']
-    order_status_data = [pending_orders, completed_orders, cancelled_orders]
+    # Phân tích số lượng theo trạng thái dựa trên types.py (duy trì thứ tự keys)
+    order_status_labels = [status_order_choices[k] for k in status_order_choices.keys()]
+    order_status_data = [status_counts.get(k, 0) for k in status_order_choices.keys()]
     
     return render(request, 'backend/pages/dashboard.html', {
         'title': 'Dashboard',

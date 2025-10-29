@@ -11,8 +11,43 @@
     
     <div class="card mb-4">
         <div class="card-header">
-            <i class="fas fa-shopping-cart me-1"></i>
-            Danh sách đơn hàng
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <form method="get" class="d-flex flex-wrap gap-2 align-items-end">
+                    <div class="form-group me-2 mb-2">
+                        <label class="form-label mb-1">Tìm kiếm</label>
+                        <input type="text" name="q" class="form-control" placeholder="Mã đơn, tên, email" value="{{ q }}">
+                    </div>
+                    <div class="form-group me-2 mb-2">
+                        <label class="form-label mb-1">Từ ngày</label>
+                        <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+                    </div>
+                    <div class="form-group me-2 mb-2">
+                        <label class="form-label mb-1">Đến ngày</label>
+                        <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+                    </div>
+                    <div class="form-group me-2 mb-2">
+                        <label class="form-label mb-1">Trạng thái</label>
+                        <select name="status" class="form-select">
+                            <option value="">Tất cả</option>
+                            {% for key,label in status_choices.items %}
+                            <option value="{{ key }}" {% if status == key %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group me-2 mb-2">
+                        <label class="form-label mb-1">Hiển thị</label>
+                        <select name="items" class="form-select">
+                            <option value="10" {% if items == 10 %}selected{% endif %}>10</option>
+                            <option value="25" {% if items == 25 %}selected{% endif %}>25</option>
+                            <option value="50" {% if items == 50 %}selected{% endif %}>50</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <button type="submit" class="btn btn-primary me-2">Lọc</button>
+                        <a href="{% url 'admin_orders' %}" class="btn btn-secondary">Xóa lọc</a>
+                    </div>
+                </form>
+            </div>
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-bordered">
@@ -73,6 +108,34 @@
                     {% endfor %}
                 </tbody>
             </table>
+
+            {% if page_obj %}
+            <nav aria-label="Orders pagination">
+                <ul class="pagination justify-content-end">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&items={{ items }}{% if q %}&q={{ q }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status %}&status={{ status }}{% endif %}">Trước</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Trước</span></li>
+                    {% endif %}
+
+                    {% for num in paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}&items={{ items }}{% if q %}&q={{ q }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status %}&status={{ status }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&items={{ items }}{% if q %}&q={{ q }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if status %}&status={{ status }}{% endif %}">Sau</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Sau</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
         </div>
     </div>
 </div>

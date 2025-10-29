@@ -30,3 +30,13 @@ def multiply(value, arg):
         return float(value) * float(arg)
     except (ValueError, TypeError):
         return 0
+
+@register.filter(name='zip_lists')
+def zip_lists(list1, list2):
+    """Ghép hai danh sách theo cặp để lặp trong template."""
+    try:
+        if list1 is None or list2 is None:
+            return []
+        return list(zip(list1, list2))
+    except Exception:
+        return []

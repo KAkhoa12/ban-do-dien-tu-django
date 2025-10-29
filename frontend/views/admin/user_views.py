@@ -2,6 +2,7 @@ from frontend.decorator import admin_required
 from frontend.utils.db_helper import * 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password,check_password
 @admin_required
 def admin_users(request):
     users = User.objects.all()
@@ -19,22 +20,13 @@ def admin_user_detail(request, id):
         phone = request.POST.get('phone')
         address = request.POST.get('address')
         role = request.POST.get('role')
-        image = request.FILES.get('image')
+        user_id = request.POST.get('user_id')
 
-        # Kiểm tra username đã tồn tại (trừ user hiện tại)
-        if User.objects.filter(username=username).exclude(id=user_id).exists():
-            messages.error(request, 'Tên đăng nhập đã tồn tại')
-            return redirect('admin_user_detail', user_id=user_id)
-
-        # Kiểm tra email đã tồn tại (trừ user hiện tại)
-        if User.objects.filter(email=email).exclude(id=user_id).exists():
-            messages.error(request, 'Email đã tồn tại')
-            return redirect('admin_user_detail', user_id=user_id)
 
         # Kiểm tra số điện thoại
         if not phone.isdigit() or len(phone) < 10 or len(phone) > 11:
             messages.error(request, 'Số điện thoại không hợp lệ')
-            return redirect('admin_user_detail', user_id=user_id)
+            return redirect('admin_user_detail', id=user_id)
 
         # Cập nhật thông tin user
         user.username = username
@@ -46,12 +38,8 @@ def admin_user_detail(request, id):
 
         # Cập nhật mật khẩu nếu có
         if password:
-            user.set_password(password)
+            user.password = make_password(password)
 
-        # Xử lý ảnh đại diện
-        if image:
-            image_url = upload_file.upload_file(image, 'users')
-            user.image_url = image_url
 
         user.save()
         messages.success(request, 'Cập nhật người dùng thành công')

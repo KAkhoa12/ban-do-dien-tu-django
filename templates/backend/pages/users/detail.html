@@ -21,10 +21,10 @@
                             {% endfor %}
                         </div>
                         {% endif %}
-
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
                         <div class="form-group">
                             <label for="username">Tên đăng nhập <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required {% if user.id == request.session.user_id %}readonly{% endif %}>
+                            <input readonly type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required {% if user.id == request.session.user_id %}readonly{% endif %}>
                             {% if user.id == request.session.user_id %}
                             <small class="form-text text-muted">Bạn không thể thay đổi tên đăng nhập của chính mình</small>
                             {% endif %}
@@ -32,7 +32,7 @@
 
                         <div class="form-group">
                             <label for="email">Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required {% if user.id == request.session.user_id %}readonly{% endif %}>
+                            <input readonly type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required {% if user.id == request.session.user_id %}readonly{% endif %}>
                             {% if user.id == request.session.user_id %}
                             <small class="form-text text-muted">Bạn không thể thay đổi email của chính mình</small>
                             {% endif %}
@@ -71,18 +71,8 @@
                             {% endif %}
                         </div>
 
-                        <div class="form-group">
-                            <label for="image">Ảnh đại diện</label>
-                            {% if user.image %}
-                            <div class="mb-2">
-                                <img src="{{ user.image.url }}" class="img-thumbnail" style="max-height: 200px">
-                            </div>
-                            {% endif %}
-                            <input type="file" class="form-control-file" id="image" name="image" accept="image/*">
-                            <div id="imagePreview" class="mt-2"></div>
-                        </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style="margin-top: 20px;">
                             <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
                             <a href="{% url 'admin_users' %}" class="btn btn-secondary">Hủy</a>
                         </div>
