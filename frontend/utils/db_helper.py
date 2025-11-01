@@ -207,8 +207,8 @@ def get_all_order_user(user_id):
     except Order.DoesNotExist:
         return None
     
-def create_order(user_id, total_price):
-    order = Order(user_id=user_id, total_price=total_price)
+def create_order(user_id, total_price, order_type='cod'):
+    order = Order(user_id=user_id, total_price=total_price, type=order_type)
     order.save()
     return order
 

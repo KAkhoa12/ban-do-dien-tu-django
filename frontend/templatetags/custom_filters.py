@@ -40,3 +40,13 @@ def zip_lists(list1, list2):
         return list(zip(list1, list2))
     except Exception:
         return []
+
+@register.filter(name='get_item')
+def get_item(dictionary, key):
+    """Lấy giá trị từ dictionary bằng key."""
+    try:
+        if dictionary is None:
+            return None
+        return dictionary.get(key)
+    except (AttributeError, TypeError):
+        return None

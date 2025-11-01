@@ -88,14 +88,16 @@
                             <div class="col-md-6">
                                 <h6 class="mb-2">Thông tin thanh toán</h6>
                                 <p class="mb-1"><strong>Phương thức:</strong> 
-                                    {% if order.momo_payment %}
+                                    {% if order.type == 'momo' %}
                                         MoMo
                                     {% else %}
                                         Thanh toán khi nhận hàng
                                     {% endif %}
                                 </p>
-                                {% if order.momo_payment %}
-                                <p class="mb-1"><strong>Mã giao dịch:</strong> {{ order.momo_payment.transaction_id }}</p>
+                                {% if order.type == 'momo' and order.id in order_payments %}
+                                {% with momo_payment=order_payments|get_item:order.id %}
+                                <p class="mb-1"><strong>Mã giao dịch:</strong> {{ momo_payment.transaction_id }}</p>
+                                {% endwith %}
                                 {% endif %}
                             </div>
                             <div class="col-md-6 text-md-right">

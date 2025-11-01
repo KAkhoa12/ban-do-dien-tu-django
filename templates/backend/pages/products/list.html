@@ -25,15 +25,15 @@
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <form method="get" class="d-flex align-items-center gap-2" id="filterForm">
                     <select class="form-select" name="brand" style="width: auto;">
-                        <option value="">Tất cả thương hiệu</option>
+                        <option value="" {% if not brand_query %}selected{% endif %}>Tất cả thương hiệu</option>
                         {% for b in brands %}
-                            <option value="{{ b.id }}" {% if brand_query|add:"" == b.id|add:"" %}selected{% endif %}>{{ b.name }}</option>
+                            <option value="{{ b.id }}" {% if brand_query and brand_query|add:"" == b.id|add:"" %}selected{% endif %}>{{ b.name }}</option>
                         {% endfor %}
                     </select>
                     <select class="form-select" name="category" style="width: auto;">
-                        <option value="">Tất cả danh mục</option>
+                        <option value="" {% if not category_query %}selected{% endif %}>Tất cả danh mục</option>
                         {% for cat in categories %}
-                            <option value="{{ cat.id }}" {% if category_query|add:"" == cat.id|add:"" %}selected{% endif %}>{{ cat.name }}</option>
+                            <option value="{{ cat.id }}" {% if category_query and category_query|add:"" == cat.id|add:"" %}selected{% endif %}>{{ cat.name }}</option>
                         {% endfor %}
                     </select>
                     <button class="btn btn-secondary" type="submit">Lọc</button>

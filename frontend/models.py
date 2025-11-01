@@ -72,10 +72,37 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     total_price = models.FloatField()
     status = models.CharField(max_length=10, default="pending")
+    type = models.CharField(max_length=10, default="cod")  # cod hoặc momo
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.name
+    
+    def save(self, *args, **kwargs):
+        # Ngăn không cho cập nhật order nếu đã completed
+        if self.pk:  # Chỉ áp dụng khi update (không phải create mới)
+            try:
+                old_order = Order.objects.get(pk=self.pk)
+                if old_order.status == 'completed' and self.status != 'completed':
+                    # Nếu order cũ đã completed và đang cố thay đổi status, giữ nguyên completed
+                    self.status = 'completed'
+                elif old_order.status != 'completed' and self.status == 'completed':
+                    # Khi chuyển sang completed, trừ số lượng sản phẩm
+                    self._deduct_product_stock()
+            except Order.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
+    
+    def _deduct_product_stock(self):
+        """Trừ số lượng sản phẩm trong kho khi order được completed"""
+        order_details = self.orderdetail_set.all()
+        for order_detail in order_details:
+            product = order_detail.product
+            product.stock -= order_detail.quantity
+            if product.stock < 0:
+                product.stock = 0  # Đảm bảo stock không âm
+            product.save()
 
 class OrderDetail(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)

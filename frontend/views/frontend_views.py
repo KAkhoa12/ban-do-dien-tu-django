@@ -1,6 +1,7 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from frontend.utils.db_helper import * 
-from frontend.models import CongTrinhToanDien, GiaiPhapAmThanh
+from frontend.models import CongTrinhToanDien, GiaiPhapAmThanh, Order, MomoPayment
+from django.contrib import messages 
 #  View Front - End 
 
 def home_page(request):
@@ -114,9 +115,18 @@ def order_history_page(request):
     user_id = request.session['user_id']
     orders = Order.objects.filter(user_id=user_id).order_by('-created_at')
     
+    # Tạo dictionary để map order.id với MomoPayment (nếu có)
+    order_payments = {}
+    for order in orders:
+        # Tìm MomoPayment có django_order_id trùng với order.id
+        momo_payment = MomoPayment.objects.filter(order_id=order.id).first()
+        if momo_payment:
+            order_payments[order.id] = momo_payment
+    
     return render(request, 'frontend/pages/order_history.html', {
         'title': 'Lịch sử đơn hàng',
-        'orders': orders
+        'orders': orders,
+        'order_payments': order_payments
     })
     
 def product_page(request,id):

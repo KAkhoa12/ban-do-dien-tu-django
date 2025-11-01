@@ -31,9 +31,11 @@ def dashboard_page(request):
     total_revenue = sum(order.total_price for order in completed_orders_list)
     
     # Lấy top 5 sản phẩm bán chạy nhất
-    # Top sản phẩm được đặt nhiều nhất
+    # Top sản phẩm được đặt nhiều nhất (chỉ tính từ đơn hàng đã hoàn thành - completed)
     from django.db.models import Count, Sum
-    top_selling_products = OrderDetail.objects.values('product_id').annotate(
+    top_selling_products = OrderDetail.objects.filter(
+        order__status='completed'
+    ).values('product_id').annotate(
         total_sold=Sum('quantity')
     ).order_by('-total_sold')[:5]
     

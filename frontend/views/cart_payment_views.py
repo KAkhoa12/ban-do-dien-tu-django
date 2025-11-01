@@ -186,16 +186,14 @@ def create_payment(request):
             cart.status = 'completed'
             cart.save()
             
-            # Tạo đơn hàng mới
-            order = create_order(user_id, 0)
+            # Tạo đơn hàng mới với type='cod'
+            order = create_order(user_id, 0, order_type='cod')
             
-            # Lấy chi tiết giỏ hàng
             cart_details_list = get_cart_detail_by_cart_id(cart.id)
             
-            # Tính tổng tiền và tạo chi tiết đơn hàng
             total_price = 0
             for cart_detail in cart_details_list:
-                # Lấy thông tin sản phẩm
+                
                 product = cart_detail.product
                 item_price = product.price * cart_detail.quantity
                 total_price += item_price
@@ -210,6 +208,7 @@ def create_payment(request):
                 )
             
             # Cập nhật tổng tiền và trạng thái đơn hàng
+            # Lưu ý: Logic trừ số lượng sản phẩm đã được chuyển vào Order.save() khi status = 'completed'
             order.total_price = total_price
             order.status = 'pending'
             order.save()
@@ -238,7 +237,7 @@ def payment_result(request):
                 data = request.POST.dict()
         
         print("Received data from MoMo:", data)
-        
+        # http://localhost:8000/payment/momo/result/?partnerCode=MOMOBKUN20180529&orderId=ad82a6b2-7a81-4fe5-9346-7fb06c25d647&requestId=354f75a6-7103-4c5c-ad18-2cbec11969e5&amount=1520000&orderInfo=Thanh+to%C3%A1n+%C4%91%C6%A1n+h%C3%A0ng&orderType=momo_wallet&transId=4603150621&resultCode=0&message=Successful.&payType=qr&responseTime=1761741495103&extraData=&signature=1fbfea876d7cbc80d66e7cb5c8fb8058bbc8a687c4e4c717470ffc9cebfc2a1e
         # Lấy thông tin người dùng và giỏ hàng từ session
         user_id = request.session.get('payment_user_id')
         cart_id = request.session.get('payment_cart_id')
@@ -281,8 +280,8 @@ def payment_result(request):
                             cart.status = 'completed'
                             cart.save()
                             
-                            # Tạo đơn hàng mới
-                            order = create_order(user_id, 0)
+                            # Tạo đơn hàng mới với type='momo'
+                            order = create_order(user_id, 0, order_type='momo')
                             cart_details = get_cart_detail_by_cart_id(cart_id)
                             
                             total_price = 0
@@ -290,6 +289,8 @@ def payment_result(request):
                                 total_price += cart_detail.product.price * cart_detail.quantity
                                 create_order_detail(order.id, cart_detail.product_id, '', cart_detail.quantity, cart_detail.product.price)
                             
+                            # Cập nhật tổng tiền và trạng thái đơn hàng
+                            # Lưu ý: Logic trừ số lượng sản phẩm đã được chuyển vào Order.save() khi status = 'completed'
                             order.total_price = total_price
                             order.status = 'pending'
                             order.save()
@@ -349,8 +350,8 @@ def payment_result(request):
                     cart.status = 'completed'
                     cart.save()
                     
-                    # Tạo đơn hàng mới
-                    order = create_order(user_id, 0)
+                    # Tạo đơn hàng mới với type='momo'
+                    order = create_order(user_id, 0, order_type='momo')
                     cart_details = get_cart_detail_by_cart_id(cart_id)
                     
                     total_price = 0
@@ -358,6 +359,8 @@ def payment_result(request):
                         total_price += cart_detail.product.price * cart_detail.quantity
                         create_order_detail(order.id, cart_detail.product_id, '', cart_detail.quantity, cart_detail.product.price)
                     
+                    # Cập nhật tổng tiền và trạng thái đơn hàng
+                    # Lưu ý: Logic trừ số lượng sản phẩm đã được chuyển vào Order.save() khi status = 'completed'
                     order.total_price = total_price
                     order.status = 'pending'
                     order.save()
