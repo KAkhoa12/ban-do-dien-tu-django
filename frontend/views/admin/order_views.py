@@ -66,9 +66,20 @@ def admin_order_detail(request, id):
     order = get_object_or_404(Order, id=id)
     order_details = OrderDetail.objects.filter(order_id=id)
     if request.method == 'POST':
-        order.status = request.POST.get('status')
+        old_status = order.status
+        new_status = request.POST.get('status')
+        
+        # Lưu status cũ để kiểm tra
+        order.status = new_status
         order.save()
-        messages.success(request, 'Cập nhật trạng thái đơn hàng thành công')
+        
+        # Thông báo nếu đã trừ stock (khi chuyển sang completed)
+        if old_status != 'completed' and new_status == 'completed':
+            messages.success(request, f'Cập nhật trạng thái đơn hàng thành công. Đã trừ số lượng sản phẩm trong kho.')
+        elif old_status == 'completed' and new_status != 'completed':
+            messages.warning(request, 'Không thể thay đổi trạng thái đơn hàng đã hoàn thành.')
+        else:
+            messages.success(request, 'Cập nhật trạng thái đơn hàng thành công')
     return render(request, 'backend/pages/orders/detail.html', {
         'order': order,
         'order_details': order_details

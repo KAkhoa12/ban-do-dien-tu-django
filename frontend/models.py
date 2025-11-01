@@ -79,7 +79,7 @@ class Order(models.Model):
         return self.user.name
     
     def save(self, *args, **kwargs):
-        # Ngăn không cho cập nhật order nếu đã completed
+        # Ngăn không cho cập nhật order nếu đã completed và đang cố thay đổi status
         if self.pk:  # Chỉ áp dụng khi update (không phải create mới)
             try:
                 old_order = Order.objects.get(pk=self.pk)
@@ -88,6 +88,7 @@ class Order(models.Model):
                     self.status = 'completed'
                 elif old_order.status != 'completed' and self.status == 'completed':
                     # Khi chuyển sang completed, trừ số lượng sản phẩm
+                    # Lưu ý: Logic này sẽ tự động được gọi khi admin cập nhật status từ admin_order_detail
                     self._deduct_product_stock()
             except Order.DoesNotExist:
                 pass

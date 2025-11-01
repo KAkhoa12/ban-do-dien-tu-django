@@ -9,6 +9,7 @@ def admin_products(request):
     # Read GET params
     brand_query = (request.GET.get('brand') or '').strip()
     category_query = (request.GET.get('category') or '').strip()
+    search_query = (request.GET.get('search') or '').strip()
     try:
         items = int(request.GET.get('items') or 10)
     except (TypeError, ValueError):
@@ -24,6 +25,8 @@ def admin_products(request):
         products_queryset = products_queryset.filter(brand_id=brand_query)
     if category_query:
         products_queryset = products_queryset.filter(category_id=category_query)
+    if search_query:
+        products_queryset = products_queryset.filter(name__icontains=search_query)
 
     paginator = Paginator(products_queryset, items)
     page_obj = paginator.get_page(page)
@@ -34,6 +37,8 @@ def admin_products(request):
         base_query_dict['brand'] = brand_query
     if category_query:
         base_query_dict['category'] = category_query
+    if search_query:
+        base_query_dict['search'] = search_query
     base_query = urlencode(base_query_dict)
 
     categories = Category.objects.all().order_by('name')
@@ -45,6 +50,7 @@ def admin_products(request):
         'items': items,
         'brand_query': brand_query,
         'category_query': category_query,
+        'search_query': search_query,
         'filters_query': base_query,  # keep var name used in template
         'categories': categories,
         'brands': brands,

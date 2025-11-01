@@ -24,6 +24,7 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <form method="get" class="d-flex align-items-center gap-2" id="filterForm">
+                    <input type="text" class="form-control" name="search" placeholder="Tìm kiếm tên sản phẩm..." value="{{ search_query }}" style="width: 250px;">
                     <select class="form-select" name="brand" style="width: auto;">
                         <option value="" {% if not brand_query %}selected{% endif %}>Tất cả thương hiệu</option>
                         {% for b in brands %}
@@ -199,6 +200,7 @@
                     const params = new URLSearchParams(window.location.search);
                     params.set('items', value);
                     params.set('page', '1');
+                    // Giữ lại các tham số filter: search, brand, category
                     window.location = "{% url 'admin_products' %}?"+params.toString();
                 }
             </script>
