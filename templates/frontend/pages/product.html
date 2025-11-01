@@ -97,6 +97,7 @@
 							<p>{{ product.description }}</p>
 
 
+							{% if product.stock > 0 %}
 							<div class="add-to-cart">
 								<div class="qty-label">
 									Số lượng
@@ -106,8 +107,15 @@
 										<span class="qty-down">-</span>
 									</div>
 								</div>
-									<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+									<button class="add-to-cart-btn" type="submit"><i class="fa fa-shopping-cart"></i> add to cart</button>
 							</div>
+							{% else %}
+							<div class="add-to-cart">
+								<button class="add-to-cart-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
+									<i class="fa fa-ban"></i> Tạm thời hết hàng
+								</button>
+							</div>
+							{% endif %}
 
 
 							<ul class="product-links">
@@ -388,9 +396,17 @@
 								</h4>
 								<p class="product-category">Đã bán: {{product_r.number_of_sell}}</p>
 							</div>
+							{% if product_r.stock > 0 %}
 							<a href="{% url 'add_to_cart' product_r.id %}" class="add-to-cart">
 								<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ hàng</button>
 							</a>
+							{% else %}
+							<div class="add-to-cart">
+								<button class="add-to-cart-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
+									<i class="fa fa-ban"></i> Tạm thời hết hàng
+								</button>
+							</div>
+							{% endif %}
 						</div>
 					</div>
 					{%endfor%}

@@ -90,9 +90,9 @@ def admin_giai_phap_add(request):
     return render(request, 'backend/pages/giai_phap/add.html')
 
 @admin_required
-def admin_giai_phap_delete(request, giai_phap_id):
+def admin_giai_phap_delete(request, id):
     try:
-        giai_phap = GiaiPhapAmThanh.objects.get(id=giai_phap_id)
+        giai_phap = GiaiPhapAmThanh.objects.get(id=id)
         # Xóa file ảnh nếu có
         if giai_phap.image_url:
             try:

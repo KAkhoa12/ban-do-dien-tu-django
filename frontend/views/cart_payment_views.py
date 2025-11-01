@@ -128,6 +128,32 @@ def create_payment(request):
                 'user': user
             })
         
+        # Kiểm tra stock có đủ với quantity trong giỏ hàng không
+        insufficient_stock_items = []
+        for cart_detail in cart_details:
+            product = cart_detail.product
+            if product.stock < cart_detail.quantity:
+                insufficient_stock_items.append({
+                    'product_name': product.name,
+                    'requested': cart_detail.quantity,
+                    'available': product.stock
+                })
+        
+        if insufficient_stock_items:
+            error_messages = []
+            for item in insufficient_stock_items:
+                error_messages.append(
+                    f"Sản phẩm '{item['product_name']}': chỉ còn {item['available']} sản phẩm trong kho, "
+                    f"nhưng bạn đã chọn {item['requested']} sản phẩm."
+                )
+            messages.error(request, "Không đủ số lượng sản phẩm trong kho:\n" + "\n".join(error_messages))
+            return render(request, 'frontend/pages/cart.html', {
+                'title': 'Giỏ hàng - Thanh toán', 
+                'categories': categories, 
+                'cart_details': cart_details, 
+                'user': user
+            })
+        
         missing_fields = []
         required_fields = ['name', 'email', 'phone', 'address']
         
