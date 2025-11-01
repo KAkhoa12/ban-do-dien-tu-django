@@ -57,10 +57,13 @@ def products_brand_page(request, id,page = 1,items=12):
         'current_page': int(page)
     })
 def search_page(request):
-    if request.method == 'POST':
-        keysearch = request.POST.get('keysearch')
-        category_id = request.POST.get('category_id')
-        categories = get_all_categories()
+    # Lấy tham số từ GET request
+    keysearch = request.GET.get('keysearch', '').strip()
+    category_id = request.GET.get('category_id', '0').strip()
+    categories = get_all_categories()
+    
+    # Nếu có tham số tìm kiếm, thực hiện tìm kiếm
+    if keysearch or (category_id and category_id != '0'):
         products = get_all_product_search(keysearch, category_id)
         
         # Lấy tên category
@@ -69,16 +72,23 @@ def search_page(request):
             category = get_category_by_id(category_id)
             if category:
                 category_name = category.name
-                
+        
         return render(request, 'frontend/pages/search.html', {
             'title': 'Tìm kiếm', 
             'products': products,
             'categories': categories, 
             'keysearch': keysearch,
+            'category_id': category_id,
             'category_name': category_name
         })
-    categories = get_all_categories()
-    return render(request, 'frontend/pages/search.html', {'title': 'Tìm kiếm', 'categories': categories})
+    
+    # Nếu không có tham số, hiển thị trang tìm kiếm trống
+    return render(request, 'frontend/pages/search.html', {
+        'title': 'Tìm kiếm', 
+        'categories': categories,
+        'keysearch': '',
+        'category_id': '0'
+    })
 def blank_page(request):
     return render(request, 'frontend/pages/blank.html', {'title': 'Trang trắng'})
 
