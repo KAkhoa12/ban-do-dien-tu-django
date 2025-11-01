@@ -2,9 +2,17 @@
     <div class="header-search">
         <form style="display: flex;" method="get" action="{% url 'search' %}" >
             <select class="input-select" name="category_id" style="width: 100px;">
-                <option selected value="0">Tất cả danh mục</option>
+                {% if category_id == '0' %}
+                    <option selected value="0">Tất cả danh mục</option>
+                {% else %}
+                    <option value="0">Tất cả danh mục</option>
+                {% endif %}
                 {% for category in categories %}
-                    <option value="{{ category.id }}" {% if category_id|add:"" == category.id|add:"" %}selected{% endif %}>{{ category.name }}</option>
+                    {% if category_id == category.id or category_id|stringformat:"s" == category.id|stringformat:"s" %}
+                        <option selected value="{{ category.id }}">{{ category.name }}</option>
+                    {% else %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endif %}
                 {% endfor %}
             </select>
             <input class="input" placeholder="Tìm kiếm ở đây" name="keysearch" value="{{ keysearch|default:'' }}">
